@@ -292,9 +292,14 @@
 
 <cffunction name="$validateExclusionOf" returntype="void" access="public" output="false">
 	<cfscript>
+		if (!$evaluateExistenceOf(argumentCollection=arguments)) {
+			addError(property=arguments.property, message=arguments.message);
+			return;
+		}
+		
 		if (StructKeyExists(this, arguments.property) && $evaluateValidationCondition(argumentCollection=arguments) && (!arguments.allowBlank || Len(this[arguments.property])))
 		{
-			if (ListFindNoCase(arguments.list, this[arguments.property]))
+			if (ListFindNoCase(arguments.list, this[arguments.property]) || (!Len(this[arguments.property]) && !arguments.allowBlank))
 				addError(property=arguments.property, message=arguments.message);
 		}
 	</cfscript>
@@ -302,6 +307,11 @@
 
 <cffunction name="$validateFormatOf" returntype="void" access="public" output="false">
 	<cfscript>
+		if (!$evaluateExistenceOf(argumentCollection=arguments)) {
+			addError(property=arguments.property, message=arguments.message);
+			return;
+		}
+			
 		if (StructKeyExists(this, arguments.property) && $evaluateValidationCondition(argumentCollection=arguments) && (!arguments.allowBlank || Len(this[arguments.property])))
 		{
 			if (!REFindNoCase(arguments.regEx, this[arguments.property]))
@@ -322,16 +332,21 @@
 
 <cffunction name="$validateLengthOf" returntype="void" access="public" output="false">
 	<cfscript>
+		if (!StructKeyExists(this, arguments.property) && !arguments.allowBlank) {
+			addError(property=arguments.property, message=arguments.message);
+			return;	
+		}
+		
 		if (StructKeyExists(this, arguments.property) && $evaluateValidationCondition(argumentCollection=arguments) && (!arguments.allowBlank || Len(this[arguments.property])))
 		{
 			if (arguments.maximum)
 			{
-				if (Len(this[arguments.property]) > arguments.maximum)
+				if (Len(this[arguments.property]) gt arguments.maximum)
 					addError(property=arguments.property, message=arguments.message);
 			}
 			else if (arguments.minimum)
 			{
-				if (Len(this[arguments.property]) < arguments.minimum)
+				if (Len(this[arguments.property]) lt arguments.minimum)
 					addError(property=arguments.property, message=arguments.message);
 			}
 			else if (arguments.exactly)
@@ -341,15 +356,22 @@
 			}
 			else if (IsArray(arguments.within) && ArrayLen(arguments.within))
 			{
-				if (Len(this[arguments.property]) < arguments.within[1] || Len(this[arguments.property]) > arguments.within[2])
+				if (Len(this[arguments.property]) lt arguments.within[1] || Len(this[arguments.property]) gt arguments.within[2])
 					addError(property=arguments.property, message=arguments.message);
 			}
+			else if (!Len(this[arguments.property]) && !arguments.allowBlank)
+				addError(property=arguments.property, message=arguments.message);
 		}
 	</cfscript>
 </cffunction>
 
 <cffunction name="$validateNumericalityOf" returntype="void" access="public" output="false">
 	<cfscript>
+		if (!StructKeyExists(this, arguments.property) && !arguments.allowBlank) {
+			addError(property=arguments.property, message=arguments.message);
+			return;	
+		}
+		
 		if (StructKeyExists(this, arguments.property) && $evaluateValidationCondition(argumentCollection=arguments) && (!arguments.allowBlank || Len(this[arguments.property])))
 		{
 			if (!IsNumeric(this[arguments.property]))
@@ -405,6 +427,15 @@
 		var returnValue = false;
 		if ((!StructKeyExists(arguments, "if") || !Len(arguments.if) || Evaluate(arguments.if)) && (!StructKeyExists(arguments, "unless") || !Len(arguments.unless) || !Evaluate(arguments.unless)))
 			returnValue = true;
+	</cfscript>
+	<cfreturn returnValue>
+</cffunction>
+
+<cffunction name="$evaluateExistenceOf" returntype="boolean" access="public" output="false" hint="Evaluates the existence of a the named property when allowBlank is false.">
+	<cfscript>
+		var returnValue = true;
+		if (!StructKeyExists(this, arguments.property) && !arguments.allowBlank)
+			returnValue = false;
 	</cfscript>
 	<cfreturn returnValue>
 </cffunction>
