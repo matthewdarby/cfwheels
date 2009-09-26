@@ -269,6 +269,12 @@
 		<cfset loc.user.validatesPresenceOf(property="firstname")>
 		<cfset assert_test(loc.user, false)>
 	</cffunction>
+	
+
+	<!--- validatesUniquenessOf --->
+	<cffunction name="test_validatesUniquenessOf_valid">
+		<cfset assert("1 eq 0") />
+	</cffunction>
 
 
 	<cffunction name="assert_test">
