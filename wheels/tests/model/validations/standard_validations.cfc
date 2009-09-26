@@ -273,7 +273,7 @@
 
 	<!--- validatesUniquenessOf --->
 	<cffunction name="test_validatesUniquenessOf_valid">
-		<cfset assert("1 eq 0") />
+		<cfset fail()>
 	</cffunction>
 
 
