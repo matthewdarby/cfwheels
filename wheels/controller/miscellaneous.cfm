@@ -21,9 +21,10 @@
 </cffunction>
 
 <cffunction name="isAjax" returntype="boolean" access="public" output="false" hint="Returns whether the page was called from JavaScript or not.">
+	<cfargument name="scope" type="struct" required="false" default="#cgi#">
 	<cfscript>
 		var returnValue = "";
-		if (cgi.http_x_requested_with == "XMLHTTPRequest")
+		if (structkeyexists(arguments.scope, "http_x_requested_with") && arguments.scope.http_x_requested_with == "XMLHTTPRequest")
 			returnValue = true;
 		else
 			returnValue = false;
@@ -119,7 +120,7 @@
 		{
 			loc.folder = loc.folder & "/" & loc.path;
 			loc.file = Replace(arguments.file, loc.path, "");
-			loc.file = Right(loc.file, Len(loc.file)-1);		
+			loc.file = Right(loc.file, Len(loc.file)-1);
 		}
 		else
 		{
@@ -132,7 +133,7 @@
 			if (loc.match.recordCount)
 				loc.file = loc.file & "." & ListLast(loc.match.name, ".");
 			else
-				$throw(type="Wheels.FileNotFound", message="File Not Found", extendedInfo="Make sure a file with the name '#loc.file#' exists in the '#loc.folder#' folder.");	
+				$throw(type="Wheels.FileNotFound", message="File Not Found", extendedInfo="Make sure a file with the name '#loc.file#' exists in the '#loc.folder#' folder.");
 		}
 		loc.fullPath = loc.folder & "/" & loc.file;
 		if (Len(arguments.name))
